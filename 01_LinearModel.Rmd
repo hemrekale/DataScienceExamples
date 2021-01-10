@@ -1,0 +1,31 @@
+```{bash}
+RETICULATE_MINICONDA_ENABLED=FALSE
+```
+
+
+```{python}
+import os
+os.sep
+print(os.sep)
+```
+
+<!-- http://r-statistics.co/Linear-Regression.html -->
+Let's start with the built-in data set cars. cars data has 50 rows and two columns.
+
+```{r}
+setwd('/home/emre/fMRI/Codes_GH/DataScienceExamples')
+head(cars)
+str(cars)
+```
+# Exploratory Data Analysis
+
+## Scatter Plot
+
+
+```{r}
+scatter.smooth(x=cars$speed, y=cars$dist, main="Dist ~ Speed",ylab = "Distance", xlab = "Speed")  # scatterplot
+```
+
+
+
+
