@@ -119,12 +119,110 @@ cars.lm <- lm(dist ~ speed, data=cars)
 print(cars.lm)
 
 ```
-Our estimated formula is then:
-Distance =  -17.579    +  3.932 * Speed
+Our estimated fit is then:
+$$Distance =  -17.579    +  3.932 * Speed$$
+
+```{r}
+lm_eq <- function(model) {
+  eq <-
+    substitute((y) == a + b %.% (x) * "," ~  ~ (r) ^ 2 ~ "=" ~ r2,
+               list(
+                 a = format(unname(coef(model)[1]), digits = 2),
+                 b = format(unname(coef(model)[2]), digits = 2),
+                 r2 = format(summary(model)$r.squared, digits = 3)
+               ))
+  as.character(as.expression(eq))
+}
+
+print(lm_eq(cars.lm))
+```
 which means one unit change in speed increase distance 3.932 units.
 
 ```{r}
-summary(cars.lm)
+
+cars.lm.summary <- summary(cars.lm)
+faramawy.summary <- faraway::sumary
+
+faramawy.summary(cars.lm)
+
+#xtxi <- cars.lm$cov.unscaled
+#sqrt (diag (xtxi)) *cars.lm.sd
+
+cars.lm.coefs <-cars.lm.summary$coefficients 
+cars.lm.sd <- sqrt(deviance(cars.lm) / df.residual(cars.lm))
+
+cars.lm.beta.estimate <- cars.lm.coefs["speed", "Estimate"]  # get beta estimate for speed
+cars.lm.stderror <- cars.lm.coefs["speed", "Std. Error"]  # get std.error for speed
+
+t_value <- cars.lm.beta.estimate/cars.lm.stderror  # calc t statistic
+p_value <- 2*pt(-abs(t_value), df=nrow(cars)-ncol(cars))  
+
+print(t_value)
+print(p_value)
+
+f_statistic <- cars.lm.summary$fstatistic[1]  # fstatistic
+f <- cars.lm.summary$fstatistic  # parameters for model p-value calc
+model_p <- pf(f[1], f[2], f[3], lower=FALSE)
+print(model_p)
 ```
+
+\newcommand*\mean[1]{\bar{#1}}
+
+# Model Evaluation
+
+## $R^2$ and $R^2_{adjusted}$
+When the model assumptions for linear model is met then either $R^2$ or $R^2_{adjusted}$ can be used to measure goodness-of-fit
+Remember sum of squares (SSE) is: 
+$$SSE = \sum_i{(y_i - \hat{y_i})^2}{}$$
+where $y_i$ is each data and $\hat{y}_i$ is the model value. And total sum of squares (SST)  is :
+$$SST = \sum_i{(y_i - {\mean{y_i}})^2}{}$$
+SST is basically variance of the data and SSE is the variance of the residuals (unexplained). Then $R^2$ is the explained variance to total variance of the data. The closer the $R^2$ to 1 is better.
+$$R^2 = 1 - \frac{SSE}{SST}$$
+$R^2$ value can be obtained from the summary of the model : 
+```{r}
+cars.lm.summary$r.squared
+```
+
+$R^2$ 
+
+
+## Model fitting using linear algebra (optional)
+
+Reference 1: http://r-statistics.co/Linear-Regression.html
+  basic examples
+Reference 2: From Faraday linear models with R
+  linear algebra calculations
+Reference 3: https://www.r-bloggers.com/2012/09/histogram-density-plot-combo-in-r/
+  histograms
+
+Calculate $$X^tX$$ and then $$\beta = {(X^tX)}^{-1}X^ty$$:
+```{r}
+X <- model.matrix ( ~ speed, data = cars)
+y <- cars$dist
+xtxi <- solve(t (X) %*% X)
+
+beta <- solve (crossprod (X, X), crossprod (X, y))
+cars.residuals <- y - X %*% beta 
+
+hist(cars.residuals, # histogram
+ border="black",
+ prob = TRUE, # show densities instead of frequencies
+ xlab = "Speed",
+ main = "Density and Histogram")
+lines(density(cars.residuals), # density plot
+ lwd = 2, # thickness of line
+ col = "blue")
+```
+```{r}
+sd <- sqrt(crossprod(cars.lm.summary$residuals,cars.lm.summary$residuals)/48)
+```
+
+## Solve using QR decomposition
+
+QR decomposition is a more stable method to solve equation.
+
+Buraya farawayden ve HARPtan cozumu koyalim.
+
+
 
 
