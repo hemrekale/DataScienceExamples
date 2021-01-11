@@ -1,12 +1,9 @@
 ```{bash}
 RETICULATE_MINICONDA_ENABLED=FALSE
 ```
-
-
 ```{python}
 import os
-os.sep
-print(os.sep)
+
 ```
 
 <!-- http://r-statistics.co/Linear-Regression.html -->
@@ -110,16 +107,22 @@ lines(density(cars$dist), # density plot
 #plot (density (cars$speed, na.rm=TRUE) )
 ```
 
+
 # Linear Model
 
 **lm** function calculates the parameters of the linear equation : intercept and slope of the linear model.
 
-Speed = intercept + slope * Distance
+Distance = intercept + slope * Speed
 
 ```{r}
 cars.lm <- lm(dist ~ speed, data=cars)
 print(cars.lm)
+
 ```
+Our estimated formula is then:
+Distance =  -17.579    +  3.932 * Speed
+which means one unit change in speed increase distance 3.932 units.
+
 ```{r}
 summary(cars.lm)
 ```
