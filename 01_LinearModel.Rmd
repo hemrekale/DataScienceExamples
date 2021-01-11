@@ -10,6 +10,11 @@ print(os.sep)
 ```
 
 <!-- http://r-statistics.co/Linear-Regression.html -->
+  
+Assumptions of linear regression:
+    1- Linearity: The relationship between X and the mean of Y is linear.
+    2 -Homoscedasticity: The variance of residual is the same for any value of X.
+    3- Independence: Observations are independent of each other.
 Let's start with the built-in data set cars. cars data has 50 rows and two columns.
 
 ```{r}
@@ -25,7 +30,13 @@ str(cars)
 ```{r}
 scatter.smooth(x=cars$speed, y=cars$dist, main="Dist ~ Speed",ylab = "Distance", xlab = "Speed")  # scatterplot
 ```
+Plot shows there is a linear (the first assumption) and increasing relationship between two variables. 
 
+## Box plot
+```{r}
+boxplot(cars$speed, main="Speed", sub=paste("Outlier rows: ", boxplot.stats(cars$speed)$out))  # box plot for 'speed'
+boxplot(cars$dist, main="Distance", sub=paste("Outlier rows: ", boxplot.stats(cars$dist)$out))  # box plot for 'distance'
+```
 
 
 
