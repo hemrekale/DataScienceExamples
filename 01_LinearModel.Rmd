@@ -12,9 +12,9 @@ print(os.sep)
 <!-- http://r-statistics.co/Linear-Regression.html -->
   
 Assumptions of linear regression:
-    1- Linearity: The relationship between X and the mean of Y is linear.
-    2 -Homoscedasticity: The variance of residual is the same for any value of X.
-    3- Independence: Observations are independent of each other.
+    1- **Linearity**: The relationship between X and the mean of Y is linear.
+    2 **Homoscedasticity**: The variance of residual is the same for any value of X.
+    3- **Independence**: Observations are independent of each other.
 Let's start with the built-in data set cars. cars data has 50 rows and two columns.
 
 ```{r}
@@ -34,9 +34,94 @@ Plot shows there is a linear (the first assumption) and increasing relationship 
 
 ## Box plot
 ```{r}
-boxplot(cars$speed, main="Speed", sub=paste("Outlier rows: ", boxplot.stats(cars$speed)$out))  # box plot for 'speed'
-boxplot(cars$dist, main="Distance", sub=paste("Outlier rows: ", boxplot.stats(cars$dist)$out))  # box plot for 'distance'
+par(mfrow=c(1, 2))  # divide graph area in 2 columns
+boxplot(cars$speed, main="Speed", sub=paste("Outlier value: ", boxplot.stats(cars$speed)$out))  # box plot for 'speed'
+boxplot(cars$dist, main="Distance", sub=paste("Outlier value: ", boxplot.stats(cars$dist)$out))  # box plot for 'distance'
+
 ```
 
+Distance has one outlier. Outliers can be detected usinq quantiles. 
+IQR = 3rd Quantile - 1st Quantile
+Outliers
+For a value of independent variable (x) 
+if x > 3rd Quantile + 1.5*IQR or if x < 1st Quantile - 1.5*IQR then x is outlier.
+
+Now we check if there is outliers in data. We will use builtin **IQR** and **quantile** functions to create our own FindOutliersIQR() function.
+**quantile** fucntion returns a named vector, and in our example the  for the speed variable **quantile** function print and return:
+
+```{r}
+q <-   quantile(cars$speed)
+print(q)
+```
+
+For eg 1st Quantile can be obtained :
+
+```{r}
+q["25%"]
+```
+
+and IQR return the 3rdQuantile - 1stQuantile value:
+
+```{r}
+IQR(cars$speed)
+```
+
+The FindOutliersIQR function will use these functions and return outliers if there is any.
+
+```{r}
+FindOutliersIQR <- function(x) 
+{
+  x.quantile <- quantile(x) # cal
+  x.IQR <- IQR(x)
+  upper <- x.quantile["75%"]  + 1.5 * x.IQR
+  lower <- x.quantile["25%"]  - 1.5 * x.IQR
+  
+  return(x[x < lower | x > upper])
+}
+
+speed.outliers <- FindOutliersIQR(cars$speed)
+distance.outliers <- FindOutliersIQR(cars$dist)
+
+print(paste0("Distance Outliers: ",distance.outliers))
+print(paste0("Speed Outliers: ",speed.outliers))
+```
+
+It seems speed have one outlier value of 120
+
+```{r}
+par(mfrow=c(1, 2))  # divide graph area in 2 columns
+hist(cars$speed, # histogram
+ border="black",
+ prob = TRUE, # show densities instead of frequencies
+ xlab = "Speed",
+ main = "Density and Histogram")
+lines(density(cars$speed), # density plot
+ lwd = 2, # thickness of line
+ col = "blue")
+
+hist(cars$dist, # histogram
+ border="black",
+ prob = TRUE, # show densities instead of frequencies
+ xlab = "Distance",
+ main = "Density and Histogram")
+lines(density(cars$dist), # density plot
+ lwd = 2, # thickness of line
+ col = "blue")
+#plot (density (cars$speed, na.rm=TRUE) )
+```
+
+# Linear Model
+
+**lm** function calculates the parameters of the linear equation : intercept and slope of the linear model.
+
+Speed = intercept + slope * Distance
+
+```{r}
+cars.lm <- lm(dist ~ speed, data=cars)
+print(cars.lm)
+```
+```{r}
+summary(cars.lm)
+```
 
 
