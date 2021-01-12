@@ -19,9 +19,9 @@ setwd('/home/emre/fMRI/Codes_GH/DataScienceExamples')
 head(cars)
 str(cars)
 ```
-# Exploratory Data Analysis
+## Exploratory Data Analysis
 
-## Scatter Plot
+### Scatter Plot
 
 
 ```{r}
@@ -29,7 +29,7 @@ scatter.smooth(x=cars$speed, y=cars$dist, main="Dist ~ Speed",ylab = "Distance",
 ```
 Plot shows there is a linear (the first assumption) and increasing relationship between two variables. 
 
-## Box plot
+### Box plot
 ```{r}
 par(mfrow=c(1, 2))  # divide graph area in 2 columns
 boxplot(cars$speed, main="Speed", sub=paste("Outlier value: ", boxplot.stats(cars$speed)$out))  # box plot for 'speed'
@@ -108,13 +108,57 @@ lines(density(cars$dist), # density plot
 ```
 
 
-# Linear Model
+## Linear Model
+In this section, we will see how to built basic linear models using **lm()** and report results using **summary()** functions parameters and statistics of the model. We will start with the simplest model. The dependent varaible is dependent only on intercept.
 
-**lm** function calculates the parameters of the linear equation : intercept and slope of the linear model.
+### Only Intercept Model
 
-Distance = intercept + slope * Speed
+First start with a simple model. Where Distance is modeled as a constant value $\beta_0$ that we want to estimate:
+
+$$y = \beta_0 + \epsilon$$
+
+As the first step we create a function that creates a line equation from estimated coefficients and intercept. 
 
 ```{r}
+lm_eq <- function(model, yname = 'y' ) {
+  
+  a = format(unname(coef(model)[1]), digits = 3)
+  b = format(unname(coef(model)[2]), digits = 3)
+  r2 = format(summary(model)$r.squared, digits = 3)
+  cc <-  coef(model)
+  eqn <- paste(yname," = ", paste(round(cc[1],2), paste(round(cc[-1],2), names(cc[-1]), sep=" * ", collapse=" + "), sep=" + "), "+ e")
+  return(eqn)
+  #return(paste0(yname, ' = ',a, ' + ', b,'*', xname,'\n','R^2 = ',r2))
+}
+```
+
+Next we create our model with only intercept plot the line on the scatter plot.
+
+```{r}
+
+cars.simple <- lm(cars$dist ~ 1)
+model.matrix(cars$dist ~ 1) 
+
+with(cars,(plot(x = speed, y = dist,xlab = "Speed", ylab = "Distance")))
+lines(cars$speed,fitted(cars.simple))
+text(x=8, y = 110, labels=lm_eq(cars.simple))
+```
+
+```{r}
+summary.cars.simple <- summary(cars.simple)
+```
+
+## Comparison of Only intercept term to one sample t-test. 
+
+If we compare p-value and estimate of mean we see that it is same as one-sample t-test:
+
+```{r}
+t.test(x = cars$dist)
+```
+
+
+```{r}
+
 cars.lm <- lm(dist ~ speed, data=cars)
 print(cars.lm)
 
@@ -123,27 +167,19 @@ Our estimated fit is then:
 $$Distance =  -17.579    +  3.932 * Speed$$
 
 ```{r}
-lm_eq <- function(model) {
-  eq <-
-    substitute((y) == a + b %.% (x) * "," ~  ~ (r) ^ 2 ~ "=" ~ r2,
-               list(
-                 a = format(unname(coef(model)[1]), digits = 2),
-                 b = format(unname(coef(model)[2]), digits = 2),
-                 r2 = format(summary(model)$r.squared, digits = 3)
-               ))
-  as.character(as.expression(eq))
-}
-
-print(lm_eq(cars.lm))
+with(cars,(plot(x = speed, y = dist,xlab = "Speed", ylab = "Distance")))
+lines(cars$speed,fitted(cars.lm))
+text(x=8, y = 110, labels=lm_eq(cars.lm))
 ```
 which means one unit change in speed increase distance 3.932 units.
 
 ```{r}
 
 cars.lm.summary <- summary(cars.lm)
-faramawy.summary <- faraway::sumary
+faraway.summary <- faraway::sumary
 
-faramawy.summary(cars.lm)
+faraway.summary(cars.lm)
+faraway.summary(cars.simple)
 
 #xtxi <- cars.lm$cov.unscaled
 #sqrt (diag (xtxi)) *cars.lm.sd
@@ -160,7 +196,7 @@ p_value <- 2*pt(-abs(t_value), df=nrow(cars)-ncol(cars))
 print(t_value)
 print(p_value)
 
-f_statistic <- cars.lm.summary$fstatistic[1]  # fstatistic
+
 f <- cars.lm.summary$fstatistic  # parameters for model p-value calc
 model_p <- pf(f[1], f[2], f[3], lower=FALSE)
 print(model_p)
