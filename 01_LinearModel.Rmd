@@ -137,7 +137,6 @@ Next we create our model with only intercept plot the line on the scatter plot.
 ```{r}
 
 cars.simple <- lm(cars$dist ~ 1)
-model.matrix(cars$dist ~ 1) 
 
 with(cars,(plot(x = speed, y = dist,xlab = "Speed", ylab = "Distance")))
 lines(cars$speed,fitted(cars.simple))
@@ -150,36 +149,72 @@ summary.cars.simple <- summary(cars.simple)
 
 ## Comparison of Only intercept term to one sample t-test. 
 
-If we compare p-value and estimate of mean we see that it is same as one-sample t-test:
+Using only intercept is the equivalent of hypotheses testing:
+
+$H_0$ : true mean of speed is equal to zero
+
+$H_1$ : true mean of speed is not equal to zero
+  
+This could be done with one-sample t-test:
 
 ```{r}
 t.test(x = cars$dist)
+print(summary(cars.simple) )
 ```
 
+The p values (6.38e-16) are equal and estimated mean (42.980 ) is also same as it should be.
+
+## Linear Model with only one dependent variable
+
+The linear model for one exploratory variable is: 
+
+$$y_i = \beta_{0i} + \beta_{1i}x$$
+In our example:
+
+$$Distance = \beta_0 + \beta_1 * Speed$$
+
+To see, if we want to check if there is a linear relation between two variables, then we should check the slope of the model $\beta_1$ should be different then zero. So our hypothesis is:
+
+$H_0 :\beta_1 =  0$
+
+$H_1 :\beta_1 \neq 0$
+
+First step is to fit the model and check the results by printing the model:
 
 ```{r}
-
 cars.lm <- lm(dist ~ speed, data=cars)
 print(cars.lm)
-
 ```
-Our estimated fit is then:
+
+```{r}
+cars.lm <- lm(dist ~ speed, data=cars)
+print(cars.lm)
+```
+
+When we check the coefficients of the model we see that our estimated fit is:
 $$Distance =  -17.579    +  3.932 * Speed$$
+
+Similarly as we did on previous section, we can visualise the fit on the scatter plot.
 
 ```{r}
 with(cars,(plot(x = speed, y = dist,xlab = "Speed", ylab = "Distance")))
 lines(cars$speed,fitted(cars.lm))
 text(x=8, y = 110, labels=lm_eq(cars.lm))
 ```
-which means one unit change in speed increase distance 3.932 units.
+
+which means one unit change in speed increase distance 3.932 units. Using summary function we can look at statistics.
 
 ```{r}
 
-cars.lm.summary <- summary(cars.lm)
-faraway.summary <- faraway::sumary
 
-faraway.summary(cars.lm)
-faraway.summary(cars.simple)
+cars.lm.summary <- summary(cars.lm)
+
+coef(cars.lm.summary)
+
+# faraway.summary <- faraway::sumary
+# 
+# faraway.summary(cars.lm)
+# faraway.summary(cars.simple)
 
 #xtxi <- cars.lm$cov.unscaled
 #sqrt (diag (xtxi)) *cars.lm.sd
@@ -230,6 +265,7 @@ Reference 2: From Faraday linear models with R
   linear algebra calculations
 Reference 3: https://www.r-bloggers.com/2012/09/histogram-density-plot-combo-in-r/
   histograms
+Reference 4: https://www.r-graph-gallery.com/44-polynomial-curve-fitting.html
 
 Calculate $$X^tX$$ and then $$\beta = {(X^tX)}^{-1}X^ty$$:
 ```{r}
@@ -258,6 +294,11 @@ sd <- sqrt(crossprod(cars.lm.summary$residuals,cars.lm.summary$residuals)/48)
 QR decomposition is a more stable method to solve equation.
 
 Buraya farawayden ve HARPtan cozumu koyalim.
+
+
+## Sandwich Models and OLS
+
+ http://www.sthda.com/english/articles/40-regression-analysis/167-simple-linear-regression-in-r/
 
 
 
