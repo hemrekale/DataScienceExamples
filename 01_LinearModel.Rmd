@@ -16,30 +16,55 @@ Let's start with the built-in data set cars. cars data has 50 rows and two colum
 
 ```{r}
 setwd('/home/emre/fMRI/Codes_GH/DataScienceExamples')
-head(cars)
-str(cars)
+#head(cars)
+#str(cars)
+#library(datarium) # The data database for R
+
 ```
+
+
+## Load the data
+
+In this section we will use the {\bf marketing} data set from the library datarium.
+datarium is a R package for various data. You should install the package if you haven't yet.
+
+```{r}
+library(datarium)
+head(marketing)
+```
+The data has four columns of which three of them are independent variables, and called youtube, facebook and newspaper. They are related to marketing expenditure. 
+
 ## Exploratory Data Analysis
 
 ### Scatter Plot
-
-
 ```{r}
-scatter.smooth(x=cars$speed, y=cars$dist, main="Dist ~ Speed",ylab = "Distance", xlab = "Speed")  # scatterplot
+#scatter.smooth(x=cars$speed, y=cars$dist, main="Dist ~ Speed",ylab = "Distance", xlab = "Speed")  # scatterplot
+par(mfrow=c(1, 3)) 
+
+scatter.smooth(x = marketing$youtube, y=marketing$sales, main="Sales ~ Youtube",xlab = "Youtube", ylab = "Sales")  # scatterplot
+scatter.smooth(x = marketing$facebook, y=marketing$sales, main="Sales ~ Facebook",xlab = "Facebook", ylab = "")  # scatterplot
+scatter.smooth(x = marketing$newspaper, y=marketing$sales, main="Sales ~ Newspaper",xlab = "Newspaper", ylab = "")  # scatterplot
+#pairs(marketing)
 ```
 Plot shows there is a linear (the first assumption) and increasing relationship between two variables. 
 
 ### Box plot
 ```{r}
-par(mfrow=c(1, 2))  # divide graph area in 2 columns
-boxplot(cars$speed, main="Speed", sub=paste("Outlier value: ", boxplot.stats(cars$speed)$out))  # box plot for 'speed'
-boxplot(cars$dist, main="Distance", sub=paste("Outlier value: ", boxplot.stats(cars$dist)$out))  # box plot for 'distance'
+par(mfrow=c(1, 3))  # divide graph area in 2 columns
+boxplot(marketing$youtube, main="youtube")
+boxplot(marketing$facebook, main="facebook")
+boxplot(marketing$newspaper, main="newspaper")
 
+
+
+#boxplot(marketing$sales)
+#boxplot(cars$dist, main="Distance", sub=paste("Outlier value: ", boxplot.stats(cars$dist)$out))  # box plot for 'distance'
 ```
 
-Distance has one outlier. Outliers can be detected usinq quantiles. 
+Newspaper columns has two outliers. Outliers can be detected usinq quantiles. 
+
 IQR = 3rd Quantile - 1st Quantile
-Outliers
+
 For a value of independent variable (x) 
 if x > 3rd Quantile + 1.5*IQR or if x < 1st Quantile - 1.5*IQR then x is outlier.
 
@@ -47,23 +72,11 @@ Now we check if there is outliers in data. We will use builtin **IQR** and **qua
 **quantile** fucntion returns a named vector, and in our example the  for the speed variable **quantile** function print and return:
 
 ```{r}
-q <-   quantile(cars$speed)
-print(q)
+#summary(marketing[,-4])
 ```
 
-For eg 1st Quantile can be obtained :
 
-```{r}
-q["25%"]
-```
-
-and IQR return the 3rdQuantile - 1stQuantile value:
-
-```{r}
-IQR(cars$speed)
-```
-
-The FindOutliersIQR function will use these functions and return outliers if there is any.
+The  **FindOutliersIQR()** function calculates inter-quantile range (IQR) using built-in IQR function and quantiles using the built-in quantile function. It uses these values to detect and return outliers if any. 
 
 ```{r}
 FindOutliersIQR <- function(x) 
@@ -76,39 +89,65 @@ FindOutliersIQR <- function(x)
   return(x[x < lower | x > upper])
 }
 
-speed.outliers <- FindOutliersIQR(cars$speed)
-distance.outliers <- FindOutliersIQR(cars$dist)
+outliers <- sapply(marketing[,-4], FindOutliersIQR)
 
-print(paste0("Distance Outliers: ",distance.outliers))
-print(paste0("Speed Outliers: ",speed.outliers))
+print(outliers)
 ```
 
-It seems speed have one outlier value of 120
+Only newspaper columns have outlier values (`r outliers$newspaper`) but we will ignore them right now.
+
 
 ```{r}
-par(mfrow=c(1, 2))  # divide graph area in 2 columns
-hist(cars$speed, # histogram
+# youtube
+par(mfrow = c(2,2))
+hist(marketing$youtube,
  border="black",
  prob = TRUE, # show densities instead of frequencies
- xlab = "Speed",
+ xlab = "facebook",
  main = "Density and Histogram")
-lines(density(cars$speed), # density plot
+lines(density(marketing$youtube), # density plot
  lwd = 2, # thickness of line
  col = "blue")
 
-hist(cars$dist, # histogram
+# facebook
+hist(marketing$facebook,
  border="black",
  prob = TRUE, # show densities instead of frequencies
- xlab = "Distance",
+ xlab = "facebook",
  main = "Density and Histogram")
-lines(density(cars$dist), # density plot
+lines(density(marketing$facebook), # density plot
  lwd = 2, # thickness of line
  col = "blue")
-#plot (density (cars$speed, na.rm=TRUE) )
+
+# newspaper
+hist(marketing$newspaper,
+ border="black",
+ prob = TRUE, # show densities instead of frequencies
+ xlab = "newspaper",
+ main = "Density and Histogram")
+lines(density(marketing$newspaper), # density plot
+ lwd = 2, # thickness of line
+ col = "blue")
+
+# newspaper
+hist(marketing$sales,
+ border="black",
+ prob = TRUE, # show densities instead of frequencies
+ xlab = "sales",
+ main = "Density and Histogram")
+lines(density(marketing$sales), # density plot
+ lwd = 2, # thickness of line
+ col = "blue")
+
+
+
+
 ```
 
+Note that none of the independent variables distributions look like normal but remember that using linear models it does not have to. The residuals of the linear model should be distributed normally. That we will check after we fit the model.
 
-## Linear Model
+
+## Linear Models with Ordinary Least Squares
 In this section, we will see how to built basic linear models using **lm()** and report results using **summary()** functions parameters and statistics of the model. We will start with the simplest model. The dependent varaible is dependent only on intercept.
 
 ### Only Intercept Model
@@ -126,7 +165,7 @@ lm_eq <- function(model, yname = 'y' ) {
   b = format(unname(coef(model)[2]), digits = 3)
   r2 = format(summary(model)$r.squared, digits = 3)
   cc <-  coef(model)
-  eqn <- paste(yname," = ", paste(round(cc[1],2), paste(round(cc[-1],2), names(cc[-1]), sep=" * ", collapse=" + "), sep=" + "), "+ e")
+  eqn <- paste(yname," = ", paste(round(cc[1],2), paste(round(cc[-1],2), names(cc[-1]), sep=" * ", collapse=" + "), sep=" + "), " e")
   return(eqn)
   #return(paste0(yname, ' = ',a, ' + ', b,'*', xname,'\n','R^2 = ',r2))
 }
@@ -135,16 +174,16 @@ lm_eq <- function(model, yname = 'y' ) {
 Next we create our model with only intercept plot the line on the scatter plot.
 
 ```{r}
-
-cars.simple <- lm(cars$dist ~ 1)
-
-with(cars,(plot(x = speed, y = dist,xlab = "Speed", ylab = "Distance")))
-lines(cars$speed,fitted(cars.simple))
-text(x=8, y = 110, labels=lm_eq(cars.simple))
+marketing.simple <- lm(marketing$sales ~ 1)
+with(marketing,(plot(x = youtube, y = sales, xlab = "youtube", ylab = "Sales")))
+lines(marketing$youtube,fitted(marketing.simple), col = "blue")
+text(x=40, y = 25, labels=lm_eq(marketing.simple))
 ```
 
 ```{r}
-summary.cars.simple <- summary(cars.simple)
+marketing.simple.summary <- summary(marketing.simple)
+
+marketing.simple.summary
 ```
 
 ## Comparison of Only intercept term to one sample t-test. 
@@ -158,8 +197,8 @@ $H_1$ : true mean of speed is not equal to zero
 This could be done with one-sample t-test:
 
 ```{r}
-t.test(x = cars$dist)
-print(summary(cars.simple) )
+print(t.test(x = marketing$sales))
+print(summary(marketing.simple) )
 ```
 
 The p values (6.38e-16) are equal and estimated mean (42.980 ) is also same as it should be.
@@ -187,19 +226,23 @@ print(cars.lm)
 ```
 
 ```{r}
-cars.lm <- lm(dist ~ speed, data=cars)
-print(cars.lm)
+marketing.lm.1 <- lm(sales ~ youtube , data=marketing)
+summary.marketing.lm.1 <- summary(marketing.lm.1)
+
+summary.marketing.lm.1$r.squared
+
+#plot(marketing.lm.1)
 ```
 
 When we check the coefficients of the model we see that our estimated fit is:
-$$Distance =  -17.579    +  3.932 * Speed$$
+$$Sales =  `r format(coef(marketing.lm.1)[1],digits = 2)`  +  `r format(coef(marketing.lm.1)[2],digits = 2)` * Youtube$$
 
 Similarly as we did on previous section, we can visualise the fit on the scatter plot.
 
 ```{r}
-with(cars,(plot(x = speed, y = dist,xlab = "Speed", ylab = "Distance")))
-lines(cars$speed,fitted(cars.lm))
-text(x=8, y = 110, labels=lm_eq(cars.lm))
+with(marketing,(plot(x = youtube, y = sales,xlab = "Youtube", ylab = "Sales")))
+lines(marketing$youtube,fitted(marketing.lm.1))
+text(x=70, y = 30, labels=lm_eq(marketing.lm.1))
 ```
 
 which means one unit change in speed increase distance 3.932 units. Using summary function we can look at statistics.
@@ -207,35 +250,38 @@ which means one unit change in speed increase distance 3.932 units. Using summar
 ```{r}
 
 
-cars.lm.summary <- summary(cars.lm)
+marketing.lm.1.summary <- summary(marketing.lm.1)
+#marketing.lm.sd <- sqrt(deviance(marketing.lm.1) / df.residual(marketing.lm.1))
 
-coef(cars.lm.summary)
+marketing.lm.1.coef <- marketing.lm.1.summary$coefficients 
 
-# faraway.summary <- faraway::sumary
-# 
-# faraway.summary(cars.lm)
-# faraway.summary(cars.simple)
+marketing.lm.1.beta.estimate <- marketing.lm.1.coef["youtube", "Estimate"]  # get beta estimate for speed
+marketing.lm.1.se <- marketing.lm.1.coef["youtube", "Std. Error"]  # get std.error for speed
 
-#xtxi <- cars.lm$cov.unscaled
-#sqrt (diag (xtxi)) *cars.lm.sd
+t_value <- marketing.lm.1.summary$coefficients["youtube","t value"]
+p_value <- marketing.lm.1.summary$coefficients["youtube","Pr(>|t|)"]
 
-cars.lm.coefs <-cars.lm.summary$coefficients 
-cars.lm.sd <- sqrt(deviance(cars.lm) / df.residual(cars.lm))
-
-cars.lm.beta.estimate <- cars.lm.coefs["speed", "Estimate"]  # get beta estimate for speed
-cars.lm.stderror <- cars.lm.coefs["speed", "Std. Error"]  # get std.error for speed
-
-t_value <- cars.lm.beta.estimate/cars.lm.stderror  # calc t statistic
+t_value <- marketing.lm.1.beta.estimate/marketing.lm.1.se  # calc t statistic
 p_value <- 2*pt(-abs(t_value), df=nrow(cars)-ncol(cars))  
+```
 
-print(t_value)
-print(p_value)
+Then t value of the coefficient estimate of the youtube effect is:
+
+$t_{youtube}$ = `r format(t_value,digits = 4)`
 
 
-f <- cars.lm.summary$fstatistic  # parameters for model p-value calc
+
+```{r}
+f <- marketing.lm.1.summary$fstatistic  # parameters for model p-value calc
 model_p <- pf(f[1], f[2], f[3], lower=FALSE)
 print(model_p)
 ```
+```{r}
+marketing.lm.2 <- lm(sales ~ youtube + facebook , data=marketing)
+summary.marketing.lm.2 <- summary(marketing.lm.2)
+```
+
+summary.marketing.lm.1$r.squared
 
 \newcommand*\mean[1]{\bar{#1}}
 
@@ -251,7 +297,7 @@ SST is basically variance of the data and SSE is the variance of the residuals (
 $$R^2 = 1 - \frac{SSE}{SST}$$
 $R^2$ value can be obtained from the summary of the model : 
 ```{r}
-cars.lm.summary$r.squared
+marketing.lm.1.summary$r.squared
 ```
 
 $R^2$ 
@@ -268,25 +314,25 @@ Reference 3: https://www.r-bloggers.com/2012/09/histogram-density-plot-combo-in-
 Reference 4: https://www.r-graph-gallery.com/44-polynomial-curve-fitting.html
 
 Calculate $$X^tX$$ and then $$\beta = {(X^tX)}^{-1}X^ty$$:
+# ```{r}
+# X <- model.matrix ( ~ speed, data = cars)
+# y <- cars$dist
+# xtxi <- solve(t (X) %*% X)
+# 
+# beta <- solve (crossprod (X, X), crossprod (X, y))
+# cars.residuals <- y - X %*% beta 
+# 
+# hist(cars.residuals, # histogram
+#  border="black",
+#  prob = TRUE, # show densities instead of frequencies
+#  xlab = "Speed",
+#  main = "Density and Histogram")
+# lines(density(cars.residuals), # density plot
+#  lwd = 2, # thickness of line
+#  col = "blue")
+# ```
 ```{r}
-X <- model.matrix ( ~ speed, data = cars)
-y <- cars$dist
-xtxi <- solve(t (X) %*% X)
-
-beta <- solve (crossprod (X, X), crossprod (X, y))
-cars.residuals <- y - X %*% beta 
-
-hist(cars.residuals, # histogram
- border="black",
- prob = TRUE, # show densities instead of frequencies
- xlab = "Speed",
- main = "Density and Histogram")
-lines(density(cars.residuals), # density plot
- lwd = 2, # thickness of line
- col = "blue")
-```
-```{r}
-sd <- sqrt(crossprod(cars.lm.summary$residuals,cars.lm.summary$residuals)/48)
+#sd <- sqrt(crossprod(cars.lm.summary$residuals,cars.lm.summary$residuals)/48)
 ```
 
 ## Solve using QR decomposition
