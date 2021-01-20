@@ -1,0 +1,62 @@
+---
+title: "OLS Mathematical"
+author: "H Emre Kale"
+date: "1/17/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+Now we will explore the mathematical derivation of ordinary least squares parameter estimation of the  linear models. If we want to express using matrix notation:
+
+$$y = X\beta + \epsilon$$
+$$\epsilon \sim N(0,\sigma)$$
+where $y$ is the observarion vector, $X$ is the design matrix, $\beta$'s are the coefficients and \epsilon is the error. Then we want to find $\beta$ such that it minimises the total error.
+
+$$\arg\min_{\beta} \epsilon^T\epsilon \text{, where}  $$
+$$ \epsilon = y - X\beta $$
+and
+
+$$\arg \min_{\beta}(y - X\beta)^T(y - X\beta)$$
+or in vector notation.
+
+$$(y - X\beta)^T(y - X\beta) = y^Ty - y^TX\beta - (X\beta)^Ty + (X\beta)^T X\beta$$
+Remember $(AB)^T = B^TA^T$ so:
+
+$$(y^T(X\beta))^T =  (X\beta)^T y$$
+so the second and third term of the equation are transpose of each other and the result is scalar. Since transpose of a scalar is the same scalar then, both of the terms are same so:
+
+$$(y - X\beta)^T(y - X\beta) = y^Ty - 2(X\beta)^Ty + \beta^T X^T X\beta$$
+This is a quadratic equation so to minimise wrt $\beta$ we take the partial deraivative wrt \beta.
+
+First let's define the vector N X 1 vector b $$\frac{\partial b^TAb}{\partial b}$$ and N x N matrix A. 
+Where $b^T = [b_1 _b_2 ... b_N]$
+
+and
+
+$$A = \begin{bmatrix}
+  a & 1 & 1 \\ a & 1 & 1 \\ a & 1 & 1
+\end{bmatrix}$$
+
+
+$$X = \matrix{x_{1,1} & ... &x_{1,p}\\ x_{2,1} & ... &x_{2,p} }$$
+
+
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
