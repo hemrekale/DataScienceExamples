@@ -15,7 +15,7 @@ Now we will explore the mathematical derivation of ordinary least squares parame
 
 $$y = X\beta + \epsilon$$
 $$\epsilon \sim N(0,\sigma)$$
-where $y$ is the observarion vector, $X$ is the design matrix, $\beta$'s are the coefficients and \epsilon is the error. Then we want to find $\beta$ such that it minimises the total error.
+where $y$ is the observation vector, $X$ is the design matrix, $\beta$'s are the coefficients and \epsilon is the error. Then we want to find $\beta$ such that it minimises the total error.
 
 $$\arg\min_{\beta} \epsilon^T\epsilon \text{, where}  $$
 $$ \epsilon = y - X\beta $$
@@ -28,22 +28,25 @@ $$(y - X\beta)^T(y - X\beta) = y^Ty - y^TX\beta - (X\beta)^Ty + (X\beta)^T X\bet
 Remember $(AB)^T = B^TA^T$ so:
 
 $$(y^T(X\beta))^T =  (X\beta)^T y$$
-so the second and third term of the equation are transpose of each other and the result is scalar. Since transpose of a scalar is the same scalar then, both of the terms are same so:
+so the second and third term of the equation are transpose of each other and they are scalars. Since transpose of a scalar is the same scalar then, both of the terms are same so:
 
 $$(y - X\beta)^T(y - X\beta) = y^Ty - 2(X\beta)^Ty + \beta^T X^T X\beta$$
-This is a quadratic equation so to minimise wrt $\beta$ we take the partial deraivative wrt \beta.
+This is a quadratic equation so to minimize wrt $\beta$ we take the partial derivative of the equation.
+As a first step  let's define the vector N X 1 vector b $$\frac{\partial b^TAb}{\partial b}$$ and N x N matrix A. Where
 
-First let's define the vector N X 1 vector b $$\frac{\partial b^TAb}{\partial b}$$ and N x N matrix A. 
-Where $b^T = [b_1 _b_2 ... b_N]$
+
 
 and
 
-$$A = \begin{bmatrix}
-  a & 1 & 1 \\ a & 1 & 1 \\ a & 1 & 1
-\end{bmatrix}$$
 
-
-$$X = \matrix{x_{1,1} & ... &x_{1,p}\\ x_{2,1} & ... &x_{2,p} }$$
+$$ A =
+\begin{bmatrix}
+a_{11} & a_{12} & \cdots & a_{1N} \\
+a_{21} & a_{22} & \cdots & a_{2N} \\
+\vdots & \vdots & \ddots & \vdots \\
+a_{N1} & a_{N2} & \cdots & a_{NN}
+\end{bmatrix} 
+$$
 
 
 
