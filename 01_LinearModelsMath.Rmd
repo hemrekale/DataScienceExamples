@@ -21,38 +21,108 @@ $$\arg\min_{\beta} \epsilon^T\epsilon \text{, where}  $$
 $$ \epsilon = y - X\beta $$
 and
 
-$$\arg \min_{\beta}(y - X\beta)^T(y - X\beta)$$
-or in vector notation.
+$\beta estimates are $\beta$ values that minimize the mean squared error.
 
-$$(y - X\beta)^T(y - X\beta) = y^Ty - y^TX\beta - (X\beta)^Ty + (X\beta)^T X\beta$$
+$$\hat{\boldsymbol{\beta}} = \underset{\boldsymbol{\beta}}{\operatorname{arg\,min}}\,(y - X\beta)^T(y - X\beta)$$
+Let's write error in open form.
+
+$$(y - X\beta)^T(y - X\beta) = y^Ty - y^TX\beta - (X\beta)^Ty+ (X\beta)^T X\beta$$
+
 Remember $(AB)^T = B^TA^T$ so:
 
 $$(y^T(X\beta))^T =  (X\beta)^T y$$
 so the second and third term of the equation are transpose of each other and they are scalars. Since transpose of a scalar is the same scalar then, both of the terms are same so:
 
 $$(y - X\beta)^T(y - X\beta) = y^Ty - 2(X\beta)^Ty + \beta^T X^T X\beta$$
-This is a quadratic equation so to minimize wrt $\beta$ we take the partial derivative of the equation.
-As a first step  let's define the vector N X 1 vector b $$\frac{\partial b^TAb}{\partial b}$$ and N x N matrix A. Where
+This is a quadratic equation and in order to find the $\beta$ which minimizes this equation wrt $\beta$, we will take the partial derivative of the equation. We can find partial derivatives term by term.
 
+We can easily see that the partial derivative is 0 for the first term:
+$$\frac{\partial y^Ty}{\partial\beta} = 0$$
+The open form of the second term is:
 
+$$(X\beta)^T y = 
+(\beta_1x_{11}y_1 +  \beta_2x_{12}y_1 + \cdots  \beta_px_{1p}y_1) +
+(\beta_1x_{21}y_2 + \beta_2x_{22}y_2 + \cdots + \beta_px_{2p}y_2) + \cdots +
+(\beta_1x_{N1}y_N + \beta_1x_{N2}y_N + \cdots + \beta_px_{Np}y_N)
+$$
 
-and
+Then for eg. partial derivative of this equation wrt $\beta_1$ is:
 
+$$\frac{\partial(X\beta)^T y}{\partial\beta_1} = x_{11}y_1 + x_{21}y_2 + \cdots + x_{N1}y_N$$ 
 
-$$ A =
-\begin{bmatrix}
-a_{11} & a_{12} & \cdots & a_{1N} \\
-a_{21} & a_{22} & \cdots & a_{2N} \\
-\vdots & \vdots & \ddots & \vdots \\
-a_{N1} & a_{N2} & \cdots & a_{NN}
+and in general form: 
+
+$$\frac{\partial(X\beta)^T y}{\partial\beta_i} = x_{1i}y_1 + x_{2i}y_2 + \cdots + x_{Ni}y_N$$ 
+
+then finally if put these terms in matrix form we see:
+
+$$ 
+\frac{\partial(X\beta)^T y}{\partial\beta} = \begin{bmatrix}
+\frac{\partial(X\beta)^T y}{\partial\beta_1}\\
+\frac{\partial(X\beta)^T y}{\partial\beta_2}\\
+\vdots\\
+\frac{\partial(X\beta)^T y}{\partial\beta_p} 
 \end{bmatrix} 
+= 
+\begin{bmatrix}
+x_{11}y_1 + x_{21}y_2 + \cdots + x_{N1}y_N \\x_{12}y_1 + x_{22}y_2 + \cdots + x_{N2}y_N \\  \vdots \\
+x_{N2}y_1 + x_{N2}y_2 + \cdots + x_{Np}y_N 
+\end{bmatrix}  = X^Ty
 $$
 
 
+For the third term let's define the vector m X 1 vector b $$\frac{\partial b^TAb}{\partial b}$$ and N x N matrix A. Where b is a one dimensional vector.
 
-```{r cars}
-summary(cars)
-```
+$$b = \begin{bmatrix}
+b_1 & b_2 &\cdots& b_m \end{bmatrix}^T$$
+
+and,
+
+$$ A =
+\begin{bmatrix}
+a_{11} & a_{12} & \cdots & a_{1m} \\
+a_{21} & a_{22} & \cdots & a_{2m} \\
+\vdots & \vdots & \ddots & \vdots \\
+a_{m1} & a_{m2} & \cdots & a_{mm}
+\end{bmatrix} 
+$$
+
+and $a_{ij} = a_{ji}$ values are symmetric.
+
+$$b^TAb = 
+b_1(b_1a_{11} + b_2a_{12} + \cdots + b_Na_{1m}) + b_2(b_1a_{21} + b_2a_{22} + \cdots + b_ma_{2m}) + \cdots  \\
++b_m(b_1a_{m1} + b_2a_{m2} + \cdots + b_Na_{mm})
+$$
+As we did before partial derivative of this equation wrt $\beta_1$ is: 
+
+$$\frac{\partial\beta^TA\beta}{\partial b_1} = 2b_1a_{11} + (b_2a_{12}+ b_3a_{13} + \cdots + b_ma_{1m}) + (b_2a_{21} + b_3a_{31} + \cdots + b_ma_{m1} )$$ 
+Since $a_{ij} = a_{ji}$ values are symmetric :
+
+$$\frac{\partial\beta^TA\beta}{\partial b_1} = 2b_1a_{11} + 2b_2a_{12}  +  \cdots + 2b_ma_{1m}$$
+
+generally:
+$$\frac{\partial\beta^TA\beta}{\partial b_i} = 2b_1a_{i1} + 2b_2a_{i2}  +  \cdots + 2b_ma_{im}$$
+in matrix form: 
+
+$$ 
+\frac{\partial b^TAb}{\partial b} = \begin{bmatrix}
+\frac{\partial b^TAb}{\partial b_1}\\
+\frac{\partial b^TAb}{\partial b_2}\\
+\vdots\\
+\frac{\partial b^TAb)^T y}{\partial b_m} 
+\end{bmatrix} = 
+\begin{bmatrix}
+2b_1a_{11} + 2b_2a_{12}  +  \cdots + 2b_ma_{1m}\\ 
+2b_1a_{21} + 2b_2a_{22}  +  \cdots + 2b_ma_{2m}\\
+\vdots \\
+2b_1a_{m1} + 2b_2a_{m2}  +  \cdots + 2b_ma_{mm}\\
+\end{bmatrix}  = 2Ab
+$$
+If $A = X^TX$ and $b = \beta$ into this equation we see $\frac{\partial \beta X^TX\beta}{\partial \beta} = 2 X^TX\beta$. Then equation becomes
+
+$$X^Ty - X^TX\beta = 0 $$ and
+$$ \beta = (X^TX)^{-1}X^Ty $$
+
 
 ## Including Plots
 
