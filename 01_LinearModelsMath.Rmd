@@ -11,20 +11,33 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## R Markdown
 
-Now we will explore the mathematical derivation of ordinary least squares parameter estimation of the  linear models. If we want to express using matrix notation:
+Now we will explore the mathematical derivation of ordinary least squares (OLS) parameter estimation of the linear models in the form of:
 
-$$y = X\beta + \epsilon$$
+$${\bf y} = X\beta + {\bf \epsilon}$$
+or in expanded form:
+
+$$y_i = \sum_i\beta_jX_{ij} + \epsilon_i$$
+According Gauss-Markov Theorem OLS is the {\bfB}est {\bfL}inear {\bfU}nbiased {\bfE}stimator. There are three assumptions of the Gauss-Markov theorem
+1 The expectation value of the error $\epsilon$ is zero:
+
+$$
+E[\epsilon_i] = 0
+$$
+2 Errors ($\epsilon_i$) have identical and finite variance:
+$$
+
+$$
+
 $$\epsilon \sim N(0,\sigma)$$
-where $y$ is the observation vector, $X$ is the design matrix, $\beta$'s are the coefficients and \epsilon is the error. Then we want to find $\beta$ such that it minimises the total error.
+where $y$ is the observation vector, $X$ is the design matrix, $\beta$'s are the coefficients and \epsilon is the error. Then we want to find $\beta$ such that it minimises the total sum of squares of error:
 
 $$\arg\min_{\beta} \epsilon^T\epsilon \text{, where}  $$
 $$ \epsilon = y - X\beta $$
-and
 
 $\beta estimates are $\beta$ values that minimize the mean squared error.
 
-$$\hat{\boldsymbol{\beta}} = \underset{\boldsymbol{\beta}}{\operatorname{arg\,min}}\,(y - X\beta)^T(y - X\beta)$$
-Let's write error in open form.
+$$\hat{\boldsymbol{\beta}} = \underset{\boldsymbol{\beta}}{\operatorname{arg\,min}},(y - X\beta)^T(y - X\beta)$$
+If you want to know is this solution really minimises the error sum of squares and Best Linear Unbiased Estimator see prof [Gauss-Markov Theorem]. Let's write error in open form. 
 
 $$(y - X\beta)^T(y - X\beta) = y^Ty - y^TX\beta - (X\beta)^Ty+ (X\beta)^T X\beta$$
 
@@ -70,13 +83,14 @@ x_{N2}y_1 + x_{N2}y_2 + \cdots + x_{Np}y_N
 \end{bmatrix}  = X^Ty
 $$
 
+The third equation is in the form $$\frac{\partial b^TAb}{\partial b}$$
 
-For the third term let's define the vector m X 1 vector b $$\frac{\partial b^TAb}{\partial b}$$ and N x N matrix A. Where b is a one dimensional vector.
+where b is an m X 1 vector:
 
 $$b = \begin{bmatrix}
 b_1 & b_2 &\cdots& b_m \end{bmatrix}^T$$
 
-and,
+and is a symmetric matrix:
 
 $$ A =
 \begin{bmatrix}
@@ -87,7 +101,7 @@ a_{m1} & a_{m2} & \cdots & a_{mm}
 \end{bmatrix} 
 $$
 
-and $a_{ij} = a_{ji}$ values are symmetric.
+where $a_{ij} = a_{ji}$. Then:
 
 $$b^TAb = 
 b_1(b_1a_{11} + b_2a_{12} + \cdots + b_Na_{1m}) + b_2(b_1a_{21} + b_2a_{22} + \cdots + b_ma_{2m}) + \cdots  \\
@@ -124,12 +138,42 @@ $$X^Ty - X^TX\beta = 0 $$ and
 $$ \beta = (X^TX)^{-1}X^Ty $$
 
 
-## Including Plots
+## Gauss-Markov Theorem
 
-You can also embed plots, for example:
+Now we will explore the mathematical derivation of ordinary least squares (OLS) parameter estimation of the linear models in the form of:
 
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
+$${\bf y} = X\beta + {\bf \epsilon}$$
+or in expanded form:
+
+$$y_i = \sum_i\beta_jX_{ij} + \epsilon_i$$
+According Gauss-Markov Theorem OLS is the {\bfB}est {\bfL}inear {\bfU}nbiased {\bfE}stimator. There are three assumptions of the Gauss-Markov theorem
+
+1 The expectation value of the error $\epsilon$ is zero:
+$$
+E[\epsilon_i] = 0
+$$
+2 Errors ($\epsilon_i$) have identical and finite variance:
+$$
+Var(\epsilon_i) = \sigma < \infty
+$$
+3 Error components are uncorrelated
+$$
+Cov(\epsilon_i, \epsilon_j) = 0, \forall i \neq j
+$$
+
+## Linear Estimators
+
+A linear estimator is defined as:
+$$
+\hat{\beta_i} = c_{1j}y_1 + c_{2j}y_2 + \cdots + c_{nj}y_n
+$$
+Note that $c$ could be only depend on values $X_{ij}$.
+
+References:
+
+Dobson, A.J. (2010) An Introduction to Generalized Linear Models, Second Edition, Chapman & Hall/CRC Texts in Statistical Science. Taylor & Francis.
+
+https://www.wikiwand.com/en/Gauss%E2%80%93Markov_theorem
+
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
