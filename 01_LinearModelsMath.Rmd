@@ -3,41 +3,39 @@ title: "OLS Mathematical"
 author: "H Emre Kale"
 date: "1/17/2021"
 output: html_document
+header-includes:
+   - \usepackage{amsmath}
+   - \DeclareMathOperator{\dis}{d}
+   - \newcommand{\betahat}{\hat\beta}
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
+## The linear regression model
 
 Now we will explore the mathematical derivation of ordinary least squares (OLS) parameter estimation of the linear models in the form of:
 
 $${\bf y} = X\beta + {\bf \epsilon}$$
-or in expanded form:
+where $y$ is the observation vector, $X$ is the design matrix, $\beta$'s are the coefficients and \epsilon is the error or in expanded form:
 
 $$y_i = \sum_i\beta_jX_{ij} + \epsilon_i$$
-According Gauss-Markov Theorem OLS is the {\bfB}est {\bfL}inear {\bfU}nbiased {\bfE}stimator. There are three assumptions of the Gauss-Markov theorem
-1 The expectation value of the error $\epsilon$ is zero:
+According **Gauss-Markov Theorem** **O**rdinary **L**east **S**quares (OLS) estimation is the **B**est **L**inear **U**nbiased **E**stimator (BLUE) for the estimation of the parameters. The solution can be found by minimizing the sum of squared residual errors (RSS):
 
-$$
-E[\epsilon_i] = 0
-$$
-2 Errors ($\epsilon_i$) have identical and finite variance:
-$$
 
 $$
 
-$$\epsilon \sim N(0,\sigma)$$
-where $y$ is the observation vector, $X$ is the design matrix, $\beta$'s are the coefficients and \epsilon is the error. Then we want to find $\beta$ such that it minimises the total sum of squares of error:
+\arg\min_{\beta} \epsilon^T\epsilon \text{, where} \\
+\epsilon = y - X\beta \text{ so, } \\
+RSS = \epsilon^T\epsilon = (y - X\beta)^T(y - X\beta)\\
+$$
 
-$$\arg\min_{\beta} \epsilon^T\epsilon \text{, where}  $$
-$$ \epsilon = y - X\beta $$
 
-$\beta estimates are $\beta$ values that minimize the mean squared error.
+so our quadratic minimisation problem converts to:
 
 $$\hat{\boldsymbol{\beta}} = \underset{\boldsymbol{\beta}}{\operatorname{arg\,min}},(y - X\beta)^T(y - X\beta)$$
-If you want to know is this solution really minimises the error sum of squares and Best Linear Unbiased Estimator see prof [Gauss-Markov Theorem]. Let's write error in open form. 
+Let's write total squared error in matrix form and write all terms using distribution property. 
 
 $$(y - X\beta)^T(y - X\beta) = y^Ty - y^TX\beta - (X\beta)^Ty+ (X\beta)^T X\beta$$
 
@@ -134,8 +132,24 @@ $$
 $$
 If $A = X^TX$ and $b = \beta$ into this equation we see $\frac{\partial \beta X^TX\beta}{\partial \beta} = 2 X^TX\beta$. Then equation becomes
 
-$$X^Ty - X^TX\beta = 0 $$ and
-$$ \beta = (X^TX)^{-1}X^Ty $$
+$$X^Ty - X^TX\beta = 0  \text{ and}\\
+X^Ty = X^TX\beta$$
+
+which is called the **normal equation** and then $\hat \beta$ is:
+
+$$\hat\beta = (X^TX)^{-1}X^Ty $$
+
+The matrix $(X^TX)^{-1}X^T$ is called the **Moore-Penrose psuedoinverse**. Then the estimated values are given:
+$$
+\hat y = X \hat \beta = X(X^TX)^{-1}X^Ty 
+$$
+This is a transformation from observed data ($\y$) to estimated data ($\hat y$) and the transformation matrix is
+
+$$P = X(X^TX)^{-1}X^T$$
+This projection matrix is also called *hat* matrix since it adds a hat on $y$.
+# Prof of the solution minimizes the quadratic equation.
+
+If you want to know is this solution really minimizes the error sum of squares go to  the proof. Best Linear Unbiased Estimator see prof [Gauss-Markov Theorem]. 
 
 
 ## Gauss-Markov Theorem
@@ -167,7 +181,26 @@ A linear estimator is defined as:
 $$
 \hat{\beta_i} = c_{1j}y_1 + c_{2j}y_2 + \cdots + c_{nj}y_n
 $$
-Note that $c$ could be only depend on values $X_{ij}$.
+Note that $c$ could be only depend on values $X_{ij}$. if the expectation of the $\beta$ estimates are equal to the $\beta$:
+
+$$E[\hat\beta] = \beta$$
+
+## The Variance-Covariance Matrix of Estimates ($\hat \beta$)
+
+The variance-covariance matrix is defined as:
+
+$$
+Var(\hat \beta) = E((\betahat - E(\betahat))^T(\betahat - E(\betahat)))
+$$
+According to Gauss-Markow Theorem $\beta = E(\betahat)$.
+\hat \beta values are estimates of the effects and the variance of the estimates are defined as:
+
+
+
+$$
+Var(\hat \beta) = Var((X^TX)^{-1}X^Ty)\\
+= E((X^TX)^{-1}X^Ty) - E(X^TX)^{-1}X^Ty))
+$$
 
 References:
 
