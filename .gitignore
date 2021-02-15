@@ -1,1 +1,3 @@
 RShiny_tut/www/
+*.html
+*.log
