@@ -187,20 +187,37 @@ $$E[\hat\beta] = \beta$$
 
 ## The Variance-Covariance Matrix of Estimates ($\hat \beta$)
 
+REF : https://web.stanford.edu/~mrosenfe/soc_meth_proj3/matrix_OLS_NYU_notes.pdf
+
 The variance-covariance matrix is defined as:
 
-$$
+\begin{equation} 
 Var(\hat \beta) = E((\betahat - E(\betahat))^T(\betahat - E(\betahat)))
+\end{equation}
+
+According to Gauss-Markov Theorem $\beta = E(\betahat)$. and remember $\hat\beta = (X^TX)^{-1}X^Ty$ and $y = X\beta + \epsilon$ so we can rewrite the previous equation:
+\begin{equation}
+\hat\beta = (X^TX)^{-1}X^T(X\beta + \epsilon) 
+\end{equation}
+
+Note that $(X^TX)^{-1}X^TX = I$ so we have:
+
 $$
-According to Gauss-Markow Theorem $\beta = E(\betahat)$.
-\hat \beta values are estimates of the effects and the variance of the estimates are defined as:
+\betahat = I\beta + (X^TX)^{-1}X^T \epsilon\\
+\betahat - \beta = (X^TX)^{-1}X^T \epsilon
+$$
+\begin{equation} 
+E((\betahat - \beta))(\betahat - \beta)^T) =  E(((X^TX^{-1}X^T \epsilon)((X^TX^{-1}X^T \epsilon)^T) )\\
+\end{equation}
+
+We will take use of the property $(AB)^T =  B^TA^T$,
+
+\begin{equation} 
+E((\betahat - \beta))(\betahat - \beta)^T) =  E(((X^TX)^{-1}X^T) (\epsilon\epsilon^T)(X^T(X^TX)^{-T1})) )\\
+\end{equation}
 
 
 
-$$
-Var(\hat \beta) = Var((X^TX)^{-1}X^Ty)\\
-= E((X^TX)^{-1}X^Ty) - E(X^TX)^{-1}X^Ty))
-$$
 
 References:
 

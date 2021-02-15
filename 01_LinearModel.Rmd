@@ -139,7 +139,7 @@ lines(density(marketing$sales), # density plot
  lwd = 2, # thickness of line
  col = "blue")
 
-
+html_document
 
 
 ```
@@ -178,7 +178,7 @@ marketing.simple <- lm(marketing$sales ~ 1)
 with(marketing,(plot(x = youtube, y = sales, xlab = "youtube", ylab = "Sales")))
 lines(marketing$youtube,fitted(marketing.simple), col = "blue")
 text(x=40, y = 25, labels=lm_eq(marketing.simple))
-```
+```html_document
 
 ```{r}
 marketing.simple.summary <- summary(marketing.simple)

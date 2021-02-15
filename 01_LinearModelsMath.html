@@ -417,19 +417,15 @@ summary {
 </div>
 
 
-<div id="r-markdown" class="section level2">
-<h2>R Markdown</h2>
+<div id="the-linear-regression-model" class="section level2">
+<h2>The linear regression model</h2>
 <p>Now we will explore the mathematical derivation of ordinary least squares (OLS) parameter estimation of the linear models in the form of:</p>
-<p><span class="math display">\[{\bf y} = X\beta + {\bf \epsilon}\]</span> or in expanded form:</p>
-<p><span class="math display">\[y_i = \sum_i\beta_jX_{ij} + \epsilon_i\]</span> According Gauss-Markov Theorem OLS is the {}est {}inear {}nbiased {}stimator. There are three assumptions of the Gauss-Markov theorem 1 The expectation value of the error <span class="math inline">\(\epsilon\)</span> is zero:</p>
-<p><span class="math display">\[
-E[\epsilon_i] = 0
-\]</span> 2 Errors (<span class="math inline">\(\epsilon_i\)</span>) have identical and finite variance: $$</p>
+<p><span class="math display">\[{\bf y} = X\beta + {\bf \epsilon}\]</span> where <span class="math inline">\(y\)</span> is the observation vector, <span class="math inline">\(X\)</span> is the design matrix, <span class="math inline">\(\beta\)</span>’s are the coefficients and is the error or in expanded form:</p>
+<p><span class="math display">\[y_i = \sum_i\beta_jX_{ij} + \epsilon_i\]</span> According <strong>Gauss-Markov Theorem</strong> <strong>O</strong>rdinary <strong>L</strong>east <strong>S</strong>quares (OLS) estimation is the <strong>B</strong>est <strong>L</strong>inear <strong>U</strong>nbiased <strong>E</strong>stimator (BLUE) for the estimation of the parameters. The solution can be found by minimizing the sum of squared residual errors (RSS):</p>
 <p>$$</p>
-<p><span class="math display">\[\epsilon \sim N(0,\sigma)\]</span> where <span class="math inline">\(y\)</span> is the observation vector, <span class="math inline">\(X\)</span> is the design matrix, <span class="math inline">\(\beta\)</span>’s are the coefficients and is the error. Then we want to find <span class="math inline">\(\beta\)</span> such that it minimises the total sum of squares of error:</p>
-<p><span class="math display">\[\arg\min_{\beta} \epsilon^T\epsilon \text{, where}  \]</span> <span class="math display">\[ \epsilon = y - X\beta \]</span></p>
-<p>$estimates are <span class="math inline">\(\beta\)</span> values that minimize the mean squared error.</p>
-<p><span class="math display">\[\hat{\boldsymbol{\beta}} = \underset{\boldsymbol{\beta}}{\operatorname{arg\,min}},(y - X\beta)^T(y - X\beta)\]</span> If you want to know is this solution really minimises the error sum of squares and Best Linear Unbiased Estimator see prof <a href="#gauss-markov-theorem">Gauss-Markov Theorem</a>. Let’s write error in open form.</p>
+<p>_{} ^T \ = y - X \ RSS = ^T= (y - X)^T(y - X)\ $$</p>
+<p>so our quadratic minimisation problem converts to:</p>
+<p><span class="math display">\[\hat{\boldsymbol{\beta}} = \underset{\boldsymbol{\beta}}{\operatorname{arg\,min}},(y - X\beta)^T(y - X\beta)\]</span> Let’s write total squared error in matrix form and write all terms using distribution property.</p>
 <p><span class="math display">\[(y - X\beta)^T(y - X\beta) = y^Ty - y^TX\beta - (X\beta)^Ty+ (X\beta)^T X\beta\]</span></p>
 <p>Remember <span class="math inline">\((AB)^T = B^TA^T\)</span> so:</p>
 <p><span class="math display">\[(y^T(X\beta))^T =  (X\beta)^T y\]</span> so the second and third term of the equation are transpose of each other and they are scalars. Since transpose of a scalar is the same scalar then, both of the terms are same so:</p>
@@ -493,7 +489,15 @@ b_1(b_1a_{11} + b_2a_{12} + \cdots + b_Na_{1m}) + b_2(b_1a_{21} + b_2a_{22} + \c
 2b_1a_{m1} + 2b_2a_{m2}  +  \cdots + 2b_ma_{mm}\\
 \end{bmatrix}  = 2Ab
 \]</span> If <span class="math inline">\(A = X^TX\)</span> and <span class="math inline">\(b = \beta\)</span> into this equation we see <span class="math inline">\(\frac{\partial \beta X^TX\beta}{\partial \beta} = 2 X^TX\beta\)</span>. Then equation becomes</p>
-<p><span class="math display">\[X^Ty - X^TX\beta = 0 \]</span> and <span class="math display">\[ \beta = (X^TX)^{-1}X^Ty \]</span></p>
+<p><span class="math display">\[X^Ty - X^TX\beta = 0  \text{ and}\\
+X^Ty = X^TX\beta\]</span></p>
+<p>which is called the <strong>normal equation</strong> and then <span class="math inline">\(\hat \beta\)</span> is:</p>
+<p><span class="math display">\[\hat\beta = (X^TX)^{-1}X^Ty \]</span></p>
+<p>The matrix <span class="math inline">\((X^TX)^{-1}X^T\)</span> is called the <strong>Moore-Penrose psuedoinverse</strong>. Then the estimated values are given: <span class="math display">\[
+\hat y = X \hat \beta = X(X^TX)^{-1}X^Ty 
+\]</span> This is a transformation from observed data (<span class="math inline">\(\y\)</span>) to estimated data (<span class="math inline">\(\hat y\)</span>) and the transformation matrix is</p>
+<p><span class="math display">\[P = X(X^TX)^{-1}X^T\]</span> This projection matrix is also called <em>hat</em> matrix since it adds a hat on <span class="math inline">\(y\)</span>. # Prof of the solution minimizes the quadratic equation.</p>
+<p>If you want to know is this solution really minimizes the error sum of squares go to the proof. Best Linear Unbiased Estimator see prof <a href="#gauss-markov-theorem">Gauss-Markov Theorem</a>.</p>
 </div>
 <div id="gauss-markov-theorem" class="section level2">
 <h2>Gauss-Markov Theorem</h2>
@@ -512,7 +516,30 @@ Cov(\epsilon_i, \epsilon_j) = 0, \forall i \neq j
 <h2>Linear Estimators</h2>
 <p>A linear estimator is defined as: <span class="math display">\[
 \hat{\beta_i} = c_{1j}y_1 + c_{2j}y_2 + \cdots + c_{nj}y_n
-\]</span> Note that <span class="math inline">\(c\)</span> could be only depend on values <span class="math inline">\(X_{ij}\)</span>.</p>
+\]</span> Note that <span class="math inline">\(c\)</span> could be only depend on values <span class="math inline">\(X_{ij}\)</span>. if the expectation of the <span class="math inline">\(\beta\)</span> estimates are equal to the <span class="math inline">\(\beta\)</span>:</p>
+<p><span class="math display">\[E[\hat\beta] = \beta\]</span></p>
+</div>
+<div id="the-variance-covariance-matrix-of-estimates-hat-beta" class="section level2">
+<h2>The Variance-Covariance Matrix of Estimates (<span class="math inline">\(\hat \beta\)</span>)</h2>
+<p>REF : <a href="https://web.stanford.edu/~mrosenfe/soc_meth_proj3/matrix_OLS_NYU_notes.pdf" class="uri">https://web.stanford.edu/~mrosenfe/soc_meth_proj3/matrix_OLS_NYU_notes.pdf</a></p>
+<p>The variance-covariance matrix is defined as:</p>
+<p><span class="math display">\[\begin{equation} 
+Var(\hat \beta) = E((\hat\beta- E(\hat\beta))^T(\hat\beta- E(\hat\beta)))
+\end{equation}\]</span></p>
+<p>According to Gauss-Markov Theorem <span class="math inline">\(\beta = E(\hat\beta)\)</span>. and remember <span class="math inline">\(\hat\beta = (X^TX)^{-1}X^Ty\)</span> and <span class="math inline">\(y = X\beta + \epsilon\)</span> so we can rewrite the previous equation: <span class="math display">\[\begin{equation}
+\hat\beta = (X^TX)^{-1}X^T(X\beta + \epsilon) 
+\end{equation}\]</span></p>
+<p>Note that <span class="math inline">\((X^TX)^{-1}X^TX = I\)</span> so we have:</p>
+<p><span class="math display">\[
+\hat\beta= I\beta + (X^TX)^{-1}X^T \epsilon\\
+\hat\beta- \beta = (X^TX)^{-1}X^T \epsilon
+\]</span> <span class="math display">\[\begin{equation} 
+E((\hat\beta- \beta))(\hat\beta- \beta)^T) =  E(((X^TX^{-1}X^T \epsilon)((X^TX^{-1}X^T \epsilon)^T) )\\
+\end{equation}\]</span></p>
+<p>We will take use of the property <span class="math inline">\((AB)^T = B^TA^T\)</span>,</p>
+<p><span class="math display">\[\begin{equation} 
+E((\hat\beta- \beta))(\hat\beta- \beta)^T) =  E(((X^TX)^{-1}X^T) (\epsilon\epsilon^T)(X^T(X^TX)^{-T1})) )\\
+\end{equation}\]</span></p>
 <p>References:</p>
 <p>Dobson, A.J. (2010) An Introduction to Generalized Linear Models, Second Edition, Chapman &amp; Hall/CRC Texts in Statistical Science. Taylor &amp; Francis.</p>
 <p><a href="https://www.wikiwand.com/en/Gauss%E2%80%93Markov_theorem" class="uri">https://www.wikiwand.com/en/Gauss%E2%80%93Markov_theorem</a></p>
