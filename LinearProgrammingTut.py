@@ -238,6 +238,7 @@ print("So, the food items to consdier, are\n"+"-"*100)
 for f in food_items:
     print(f,end=', ')
 
+costs = dict(zip(food_items, df['Price/Serving']))
 calories = dict(zip(food_items,df['Calories']))
 cholesterol = dict(zip(food_items,df['Cholesterol (mg)']))
 fat = dict(zip(food_items,df['Total_Fat (g)']))
@@ -278,6 +279,7 @@ prob += lpSum([protein[f] * food_vars[f] for f in food_items]) <= 150.0, "Protei
 prob.writeLP("SimpleDietProblem.lp")
 # The problem is solved using PuLP's choice of Solver
 prob.solve()
+
 # The status of the solution is printed to the screen
 print("Status:", LpStatus[prob.status])
 print("Therefore, the optimal (least cost) balanced diet consists of\n"+"-"*110)
@@ -285,11 +287,185 @@ for v in prob.variables():
     if v.varValue>0:
         print(v.name, "=", v.varValue)
 
+
+
+
 print("The total cost of this balanced diet is: ${}".format(round(value(prob.objective),2)))
 
-prob.objective
-
-obj = value(prob.objective) 
+obj = value(prob.objective)
 print("The total cost of this balanced diet is: ${}".format(round(obj,2)))
 
+# integer programming
+from pulp import LpMinimize, LpProblem, LpStatus, lpSum, LpVariable, value
+
+
+df = pd.read_excel("data/diet_medium.xls",nrows = 17)
+df.head()
+df.info()
+
+df = df[~df['Foods'].str.contains("Eggs")]
+df = df[~df['Foods'].str.contains("Cookies")]
+df = df[~df['Foods'].str.contains("Beef")]
+df = df[~df['Foods'].str.contains("Chicken")]
+df = df[~df['Foods'].str.contains("Turkey")]
+
+#Create the PuLP problem variable. Since it is a cost minimization problem, we need to use LpMinimize
+# Create the 'prob' variable to contain the problem data
+prob = LpProblem("Simple Diet Problem", LpMinimize)
+
+# Creates a list of the Ingredients
+food_items = list(df['Foods'])
+
+print("So, the food items to consdier, are\n"+"-"*100)
+for f in food_items:
+    print(f,end=', ')
+
+costs = dict(zip(food_items, df['Price/Serving']))
+calories = dict(zip(food_items,df['Calories']))
+cholesterol = dict(zip(food_items,df['Cholesterol (mg)']))
+fat = dict(zip(food_items,df['Total_Fat (g)']))
+sodium = dict(zip(food_items,df['Sodium (mg)']))
+carbs = dict(zip(food_items,df['Carbohydrates (g)']))
+fiber = dict(zip(food_items,df['Dietary_Fiber (g)']))
+protein = dict(zip(food_items,df['Protein (g)']))
+vit_C = dict(zip(food_items,df['Vit_C (IU)']))
+calcium = dict(zip(food_items,df['Calcium (mg)']))
+iron = dict(zip(food_items,df['Iron (mg)']))
+
+food_vars = LpVariable.dicts("Food",food_items,0,cat='Integer')
+
+prob += lpSum([costs[i]*food_vars[i] for i in food_items]), "Total Cost of the balanced diet"
+
+#Adding calorie constraint
+prob += lpSum([calories[f] * food_vars[f] for f in food_items]) >= 800.0, "CalorieMinimum"
+prob += lpSum([calories[f] * food_vars[f] for f in food_items]) <= 1300.0, "CalorieMaximum"
+
+# Fat
+prob += lpSum([fat[f] * food_vars[f] for f in food_items]) >= 20.0, "FatMinimum"
+prob += lpSum([fat[f] * food_vars[f] for f in food_items]) <= 50.0, "FatMaximum"
+
+# Carbs
+prob += lpSum([carbs[f] * food_vars[f] for f in food_items]) >= 130.0, "CarbsMinimum"
+prob += lpSum([carbs[f] * food_vars[f] for f in food_items]) <= 200.0, "CarbsMaximum"
+
+# Fiber
+prob += lpSum([fiber[f] * food_vars[f] for f in food_items]) >= 60.0, "FiberMinimum"
+prob += lpSum([fiber[f] * food_vars[f] for f in food_items]) <= 125.0, "FiberMaximum"
+
+# Protein
+prob += lpSum([protein[f] * food_vars[f] for f in food_items]) >= 100.0, "ProteinMinimum"
+prob += lpSum([protein[f] * food_vars[f] for f in food_items]) <= 150.0, "ProteinMaximum"
+
+# The problem data is written to an .lp file
+prob.writeLP("SimpleDietProblem.lp")
+# The problem is solved using PuLP's choice of Solver
+prob.solve()
+
+# The status of the solution is printed to the screen
+print("Status:", LpStatus[prob.status])
+print("Therefore, the optimal (least cost) balanced diet consists of\n"+"-"*110)
+for v in prob.variables():
+    if v.varValue>0:
+        print(v.name, "=", v.varValue)
+
+
+
+
+print("The total cost of this balanced diet is: ${}".format(round(value(prob.objective),2)))
+
+obj = value(prob.objective)
+print("The total cost of this balanced diet is: ${}".format(round(obj,2)))
+
+# Conditional integer programming
+
+from pulp import LpMinimize, LpProblem, LpStatus, lpSum, LpVariable, value
+
+
+df = pd.read_excel("data/diet_medium.xls",nrows = 17)
+df.head()
+df.info()
+
+df = df[~df['Foods'].str.contains("Eggs")]
+df = df[~df['Foods'].str.contains("Cookies")]
+df = df[~df['Foods'].str.contains("Beef")]
+df = df[~df['Foods'].str.contains("Chicken")]
+df = df[~df['Foods'].str.contains("Turkey")]
+
+#Create the PuLP problem variable. Since it is a cost minimization problem, we need to use LpMinimize
+# Create the 'prob' variable to contain the problem data
+prob = LpProblem("Simple Diet Problem", LpMinimize)
+
+# Creates a list of the Ingredients
+food_items = list(df['Foods'])
+
+print("So, the food items to consdier, are\n"+"-"*100)
+for f in food_items:
+    print(f,end=', ')
+
+costs = dict(zip(food_items, df['Price/Serving']))
+calories = dict(zip(food_items,df['Calories']))
+cholesterol = dict(zip(food_items,df['Cholesterol (mg)']))
+fat = dict(zip(food_items,df['Total_Fat (g)']))
+sodium = dict(zip(food_items,df['Sodium (mg)']))
+carbs = dict(zip(food_items,df['Carbohydrates (g)']))
+fiber = dict(zip(food_items,df['Dietary_Fiber (g)']))
+protein = dict(zip(food_items,df['Protein (g)']))
+vit_C = dict(zip(food_items,df['Vit_C (IU)']))
+calcium = dict(zip(food_items,df['Calcium (mg)']))
+iron = dict(zip(food_items,df['Iron (mg)']))
+
+food_vars = LpVariable.dicts("Food",food_items,0,cat='Integer')
+
+prob += lpSum([costs[i]*food_vars[i] for i in food_items]), "Total Cost of the balanced diet"
+
+#Adding calorie constraint
+prob += lpSum([calories[f] * food_vars[f] for f in food_items]) >= 800.0, "CalorieMinimum"
+prob += lpSum([calories[f] * food_vars[f] for f in food_items]) <= 1300.0, "CalorieMaximum"
+
+# Fat
+prob += lpSum([fat[f] * food_vars[f] for f in food_items]) >= 20.0, "FatMinimum"
+prob += lpSum([fat[f] * food_vars[f] for f in food_items]) <= 50.0, "FatMaximum"
+
+# Carbs
+prob += lpSum([carbs[f] * food_vars[f] for f in food_items]) >= 130.0, "CarbsMinimum"
+prob += lpSum([carbs[f] * food_vars[f] for f in food_items]) <= 200.0, "CarbsMaximum"
+
+# Fiber
+prob += lpSum([fiber[f] * food_vars[f] for f in food_items]) >= 60.0, "FiberMinimum"
+prob += lpSum([fiber[f] * food_vars[f] for f in food_items]) <= 125.0, "FiberMaximum"
+
+# Protein
+prob += lpSum([protein[f] * food_vars[f] for f in food_items]) >= 100.0, "ProteinMinimum"
+prob += lpSum([protein[f] * food_vars[f] for f in food_items]) <= 150.0, "ProteinMaximum"
+
+# Either broccoli or Raw Iceberg Lettuce
+food_chosen = LpVariable.dicts("Chosen",food_items,0,1,cat='binary')
+
+for f in food_items:
+    prob += food_vars[f]>= food_chosen[f]*0.1
+    prob += food_vars[f]<= food_chosen[f]*1e5
+
+prob += food_chosen['Frozen Broccoli']+food_chosen['Raw Iceberg Lettuce']<=1
+
+for x in food_chosen:
+    print(x)
+# The problem data is written to an .lp file
+prob.writeLP("SimpleDietProblem.lp")
+# The problem is solved using PuLP's choice of Solver
+prob.solve()
+
+# The status of the solution is printed to the screen
+print("Status:", LpStatus[prob.status])
+print("Therefore, the optimal (least cost) balanced diet consists of\n"+"-"*110)
+for v in prob.variables():
+    if v.varValue>0:
+        print(v.name, "=", v.varValue)
+
+
+
+
+print("The total cost of this balanced diet is: ${}".format(round(value(prob.objective),2)))
+
+obj = value(prob.objective)
+print("The total cost of this balanced diet is: ${}".format(round(obj,2)))
 
