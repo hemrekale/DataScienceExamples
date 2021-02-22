@@ -45,7 +45,7 @@ from pulp import LpMaximize, LpProblem, LpStatus, lpSum, LpVariable
 model = LpProblem(name="small-problem", sense=LpMaximize)
 
 # Initialize the decision variables
-x = LpVariable(name="x", lowBound=0)
+x = LpVariable(name="x", lowBound=0, cat="Integer")
 y = LpVariable(name="y", lowBound=0)
 
 # Add the constraints to the model
@@ -130,5 +130,166 @@ for var in x.values():
 for name, constraint in model.constraints.items():
     print(f"{name}: {constraint.value()}")
 
+
+# With GLPK
+
+from pulp import GLPK
+
+# Create the model
+model = LpProblem(name="small-problem", sense=LpMaximize)
+
+# Initialize the decision variables
+x = LpVariable(name="x", lowBound=0)
+y = LpVariable(name="y", lowBound=0)
+
+# Add the constraints to the model
+model += (2 * x + y <= 20, "red_constraint")
+model += (4 * x - 5 * y >= -10, "blue_constraint")
+model += (-x + 2 * y >= -2, "yellow_constraint")
+model += (-x + 5 * y == 15, "green_constraint")
+
+# Add the objective function to the model
+model += lpSum([x, 2 * y])
+
+# Solve the problem
+status = model.solve(solver=GLPK(msg=False))
+
+print(f"status: {model.status}, {LpStatus[model.status]}")
+
+
+print(f"objective: {model.objective.value()}")
+
+
+for var in model.variables():
+    print(f"{var.name}: {var.value()}")
+
+
+for name, constraint in model.constraints.items():
+    print(f"{name}: {constraint.value()}")
+
+
+# Add a constraint to the model
+# For the Profit example now 1st and 3rd product cannot be produced at once.
+
+model = LpProblem(name="resource-allocation", sense=LpMaximize)
+
+
+# Define the decision variables
+
+x = {i: LpVariable(name=f"x{i}", lowBound=0) for i in range(1, 5)}
+y = {i: LpVariable(name=f"y{i}", cat="Binary") for i in (1, 3)}
+
+
+# Add constraints
+
+model += (lpSum(x.values()) <= 50, "manpower")
+model += (3 * x[1] + 2 * x[2] + x[3] <= 100, "material_a")
+model += (x[2] + 2 * x[3] + 3 * x[4] <= 90, "material_b")
+
+
+M = 100
+
+model += (x[1] <= y[1] * M, "x1_constraint")
+model += (x[3] <= y[3] * M, "x3_constraint")
+model += (y[1] + y[3] <= 1, "y_constraint")
+
+# Set objective
+model += 20 * x[1] + 12 * x[2] + 40 * x[3] + 25 * x[4]
+
+# Solve the optimization problem
+
+status = model.solve()
+
+print(f"status: {model.status}, {LpStatus[model.status]}")
+print(f"objective: {model.objective.value()}")
+
+for var in model.variables():
+    print(f"{var.name}: {var.value()}")
+
+
+for name, constraint in model.constraints.items():
+    print(f"{name}: {constraint.value()}")
+
+# PULP tutorial II
+# [source][2] :https://towardsdatascience.com/linear-programming-and-discrete-optimization-with-python-using-pulp-449f3c5f6e99
+
+import pandas as pd
+from pulp import LpMinimize, LpProblem, LpStatus, lpSum, LpVariable, value
+
+
+df = pd.read_excel("data/diet_medium.xls",nrows = 17)
+df.head()
+df.info()
+
+df = df[~df['Foods'].str.contains("Eggs")]
+df = df[~df['Foods'].str.contains("Cookies")]
+df = df[~df['Foods'].str.contains("Beef")]
+df = df[~df['Foods'].str.contains("Chicken")]
+df = df[~df['Foods'].str.contains("Turkey")]
+
+#Create the PuLP problem variable. Since it is a cost minimization problem, we need to use LpMinimize
+# Create the 'prob' variable to contain the problem data
+prob = LpProblem("Simple Diet Problem", LpMinimize)
+
+# Creates a list of the Ingredients
+food_items = list(df['Foods'])
+
+print("So, the food items to consdier, are\n"+"-"*100)
+for f in food_items:
+    print(f,end=', ')
+
+calories = dict(zip(food_items,df['Calories']))
+cholesterol = dict(zip(food_items,df['Cholesterol (mg)']))
+fat = dict(zip(food_items,df['Total_Fat (g)']))
+sodium = dict(zip(food_items,df['Sodium (mg)']))
+carbs = dict(zip(food_items,df['Carbohydrates (g)']))
+fiber = dict(zip(food_items,df['Dietary_Fiber (g)']))
+protein = dict(zip(food_items,df['Protein (g)']))
+vit_C = dict(zip(food_items,df['Vit_C (IU)']))
+calcium = dict(zip(food_items,df['Calcium (mg)']))
+iron = dict(zip(food_items,df['Iron (mg)']))
+
+# A dictionary called 'food_vars' is created to contain the referenced Variables
+food_vars = LpVariable.dicts("Food",food_items,0,cat='Continuous')
+# The objective function is added to 'prob' first
+prob += lpSum([costs[i]*food_vars[i] for i in food_items]), "Total Cost of the balanced diet"
+
+#Adding calorie constraint
+prob += lpSum([calories[f] * food_vars[f] for f in food_items]) >= 800.0, "CalorieMinimum"
+prob += lpSum([calories[f] * food_vars[f] for f in food_items]) <= 1300.0, "CalorieMaximum"
+
+# Fat
+prob += lpSum([fat[f] * food_vars[f] for f in food_items]) >= 20.0, "FatMinimum"
+prob += lpSum([fat[f] * food_vars[f] for f in food_items]) <= 50.0, "FatMaximum"
+
+# Carbs
+prob += lpSum([carbs[f] * food_vars[f] for f in food_items]) >= 130.0, "CarbsMinimum"
+prob += lpSum([carbs[f] * food_vars[f] for f in food_items]) <= 200.0, "CarbsMaximum"
+
+# Fiber
+prob += lpSum([fiber[f] * food_vars[f] for f in food_items]) >= 60.0, "FiberMinimum"
+prob += lpSum([fiber[f] * food_vars[f] for f in food_items]) <= 125.0, "FiberMaximum"
+
+# Protein
+prob += lpSum([protein[f] * food_vars[f] for f in food_items]) >= 100.0, "ProteinMinimum"
+prob += lpSum([protein[f] * food_vars[f] for f in food_items]) <= 150.0, "ProteinMaximum"
+
+# The problem data is written to an .lp file
+prob.writeLP("SimpleDietProblem.lp")
+# The problem is solved using PuLP's choice of Solver
+prob.solve()
+# The status of the solution is printed to the screen
+print("Status:", LpStatus[prob.status])
+print("Therefore, the optimal (least cost) balanced diet consists of\n"+"-"*110)
+for v in prob.variables():
+    if v.varValue>0:
+        print(v.name, "=", v.varValue)
+
+print("The total cost of this balanced diet is: ${}".format(round(value(prob.objective),2)))
+
+prob.objective
+
+obj = value(prob.objective) 
+print("The total cost of this balanced diet is: ${}".format(round(obj,2)))
 
 
