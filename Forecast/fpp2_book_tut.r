@@ -157,10 +157,10 @@ autoplot(A1.ts) +
   guides(colour=guide_legend(title="Forecast"))
 
 library(gtrendsR)
-search_terms <- "Bipolar"
+search_terms <- "Bipolar Disorder"
 
 output_results <- gtrends(keyword = search_terms,
-        geo = "HK",
+        geo = "TR",
         time = "all") -> output_results
 
 output_results %>%
@@ -174,5 +174,36 @@ plot
 
 forecast(auto.arima(output_results$interest_over_time$hits),5)
 
+library(gtrendsR)
+
+search_terms <- "dildo"
+output_results <- gtrends(keyword = search_terms,geo = "US",
+                          time = "all")  
+
+
+hitDF <-
+  data.frame(
+    hits = output_results$interest_over_time$hits,
+    date = as.Date(output_results$interest_over_time$date),
+    year = lubridate::year(as.Date(output_results$interest_over_time$date))
+  )
+hitDF2010 <- hitDF %>% filter(year > 2010)
+
+hitDF2010 %>% ggplot(aes(x = date, y = hits)) +
+  geom_line(colour = "darkblue", size = 1.5) +
+  #facet_wrap(~keyword) +
+  ggthemes::theme_economist() -> plot
+plot
+
+hitDF2010 %>% glimpse()
+
+
+BP.ts <- ts(hitDF2010$hits, 
+            freq = 12, 
+            start = c(2011,1))
+
+ggseasonplot(BP.ts, year.labels=TRUE, year.labels.left=TRUE) 
+
+ggsubseriesplot(BP.ts) 
 
 
