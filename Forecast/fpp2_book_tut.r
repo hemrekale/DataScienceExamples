@@ -176,7 +176,7 @@ forecast(auto.arima(output_results$interest_over_time$hits),5)
 
 library(gtrendsR)
 
-search_terms <- "dildo"
+search_terms <- "depression"
 output_results <- gtrends(keyword = search_terms,geo = "US",
                           time = "all")  
 
@@ -206,4 +206,15 @@ ggseasonplot(BP.ts, year.labels=TRUE, year.labels.left=TRUE)
 
 ggsubseriesplot(BP.ts) 
 
+#Functions to subset a time series
+#The window() function introduced in Chapter 2 is useful when extracting a portion of a time series, such as we need when creating training and test sets. In the window() function, we specify the start and/or end of the portion of time series required using time values. For example,
+window(ausbeer, start=1995)
+#extracts all data from 1995 onward.
 
+#Another useful function is subset() which allows for more types of subsetting. A great advantage of this function is that it allows the use of indices to choose a subset. For example,
+subset(ausbeer, start=length(ausbeer)-4*5)
+#extracts the last 5 years of observations from ausbeer. It also allows extracting all values for a specific season. For example,
+subset(ausbeer, quarter = 1)
+#extracts the first quarters for all years.
+#Finally, head and tail are useful for extracting the first few or last few observations. For example, the last 5 years of ausbeer can also be obtained using
+#tail(ausbeer, 4*5)
