@@ -1,4 +1,10 @@
 # DataScienceExamples
+
+stat_tut : 
+
+. One-sample t-test
+- Two-sample t-test
+-Confidence interval and power
  
  To do 
  1 - Add equation numbers 
